@@ -22,6 +22,19 @@ final class CropGeometryTests: XCTestCase {
         XCTAssertEqual(configuration.maximumZoomFactor, 6)
     }
 
+    func testINatureFlowPresetsShareCanonicalLayoutAndFinderSize() {
+        let camera = CameraScreenConfiguration.iNature(theme: .iNature, title: "Branded Scanner")
+        let crop = CropEditorConfiguration.iNature
+        let processing = ProcessingScreenConfiguration.iNature
+
+        XCTAssertEqual(camera.layoutStyle, .iNatureLegacy)
+        XCTAssertEqual(camera.finderMaximumSize, 300)
+        XCTAssertEqual(camera.title, "Branded Scanner")
+        XCTAssertEqual(crop.layoutStyle, .iNatureLegacy)
+        XCTAssertEqual(crop.cropMaximumSize, camera.finderMaximumSize)
+        XCTAssertEqual(processing.layoutStyle, .iNatureLegacy)
+    }
+
     func testCameraPageConvertsFinderFrameIntoPreviewCoordinates() {
         let finderFrame = CGRect(x: 42, y: 180, width: 280, height: 280)
         let previewFrame = CGRect(x: 0, y: 47, width: 390, height: 844)
@@ -46,7 +59,7 @@ final class CropGeometryTests: XCTestCase {
         )
 
         XCTAssertEqual(compact.areaHeight, 140)
-        XCTAssertEqual(compact.maximumFinderSize, 106)
+        XCTAssertEqual(compact.maximumFinderSize, 140)
         XCTAssertEqual(regular.areaHeight, 337.6, accuracy: 0.001)
         XCTAssertEqual(regular.maximumFinderSize, 300)
     }
@@ -74,6 +87,19 @@ final class CropGeometryTests: XCTestCase {
         )
         XCTAssertGreaterThanOrEqual(displayed.width, layout.cropRect.width)
         XCTAssertGreaterThanOrEqual(displayed.height, layout.cropRect.height)
+    }
+
+    func testSquareCropRespectsMaximumSize() {
+        let layout = CropGeometry.layout(
+            imageSize: CGSize(width: 1200, height: 1600),
+            canvasFrame: CGRect(x: 0, y: 100, width: 393, height: 500),
+            cropScale: 0.78,
+            cropMaximumSize: 300,
+            aspectRatio: 1
+        )
+
+        XCTAssertEqual(layout.cropRect.width, 300, accuracy: 0.001)
+        XCTAssertEqual(layout.cropRect.height, 300, accuracy: 0.001)
     }
 
     func testLandscapeAspectRatioFitsCanvas() {

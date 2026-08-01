@@ -105,6 +105,65 @@ public struct CameraScreenConfiguration: Sendable {
         finderColor: Color(red: 0.18, green: 0.55, blue: 0.24),
         layoutStyle: .iNatureLegacy
     )
+
+    /// Creates an app-branded camera while preserving the canonical iNature
+    /// geometry. Apps may customize content and appearance, but the finder size
+    /// and page hierarchy stay aligned with the crop and processing screens.
+    public static func iNature(
+        theme: BioScanTheme,
+        title: String = "Identify",
+        instruction: String = "Center your subject inside the frame",
+        permissionTitle: String = "Camera Access",
+        permissionMessage: String = "Allow camera access to photograph and identify your subject.",
+        deniedMessage: String = "Camera access is disabled. You can enable it in Settings.",
+        supportsPhotoLibrary: Bool = true,
+        supportsFlash: Bool = true,
+        supportsTapToFocus: Bool = true,
+        supportsPinchToZoom: Bool = true,
+        statusText: String? = "On-device recognition",
+        processingInstruction: String = "Analyzing subject…",
+        finderCornerRadius: CGFloat = 24,
+        finderStyle: CameraFinderStyle = .cornerMarkers,
+        finderColor: Color? = nil,
+        maximumZoomFactor: CGFloat = 6,
+        statusSystemImage: String = "cpu",
+        statusForegroundColor: Color = .white.opacity(0.94),
+        closeAccessibilityLabel: String = "Close camera",
+        helpAccessibilityLabel: String = "Show camera tips",
+        galleryAccessibilityLabel: String = "Choose a photo",
+        captureAccessibilityLabel: String = "Take photo",
+        flashOnAccessibilityLabel: String = "Turn flash off",
+        flashOffAccessibilityLabel: String = "Turn flash on"
+    ) -> CameraScreenConfiguration {
+        CameraScreenConfiguration(
+            theme: theme,
+            title: title,
+            instruction: instruction,
+            permissionTitle: permissionTitle,
+            permissionMessage: permissionMessage,
+            deniedMessage: deniedMessage,
+            supportsPhotoLibrary: supportsPhotoLibrary,
+            supportsFlash: supportsFlash,
+            supportsTapToFocus: supportsTapToFocus,
+            supportsPinchToZoom: supportsPinchToZoom,
+            statusText: statusText,
+            processingInstruction: processingInstruction,
+            finderCornerRadius: finderCornerRadius,
+            finderMaximumSize: 300,
+            finderStyle: finderStyle,
+            finderColor: finderColor,
+            layoutStyle: .iNatureLegacy,
+            maximumZoomFactor: maximumZoomFactor,
+            statusSystemImage: statusSystemImage,
+            statusForegroundColor: statusForegroundColor,
+            closeAccessibilityLabel: closeAccessibilityLabel,
+            helpAccessibilityLabel: helpAccessibilityLabel,
+            galleryAccessibilityLabel: galleryAccessibilityLabel,
+            captureAccessibilityLabel: captureAccessibilityLabel,
+            flashOnAccessibilityLabel: flashOnAccessibilityLabel,
+            flashOffAccessibilityLabel: flashOffAccessibilityLabel
+        )
+    }
 }
 
 public enum CropBorderAnimationStyle: Sendable {
@@ -121,6 +180,7 @@ public struct CropEditorConfiguration: Sendable {
     public let theme: BioScanTheme
     public let aspectRatio: CGFloat
     public let cropScale: CGFloat
+    public let cropMaximumSize: CGFloat?
     public let cornerRadius: CGFloat
     public let showsGrid: Bool
     public let showsPreview: Bool
@@ -136,6 +196,7 @@ public struct CropEditorConfiguration: Sendable {
         theme: BioScanTheme = .iNature,
         aspectRatio: CGFloat = 1,
         cropScale: CGFloat = 0.78,
+        cropMaximumSize: CGFloat? = nil,
         cornerRadius: CGFloat = 14,
         showsGrid: Bool = true,
         showsPreview: Bool = true,
@@ -150,6 +211,7 @@ public struct CropEditorConfiguration: Sendable {
         self.theme = theme
         self.aspectRatio = aspectRatio
         self.cropScale = cropScale
+        self.cropMaximumSize = cropMaximumSize
         self.cornerRadius = cornerRadius
         self.showsGrid = showsGrid
         self.showsPreview = showsPreview
@@ -163,6 +225,7 @@ public struct CropEditorConfiguration: Sendable {
     }
 
     public static let iNature = CropEditorConfiguration(
+        cropMaximumSize: 300,
         confirmTitle: "Use Crop",
         animationStyle: .none,
         layoutStyle: .iNatureLegacy,
@@ -176,6 +239,7 @@ public struct CropEditorConfiguration: Sendable {
     ) -> CropEditorConfiguration {
         CropEditorConfiguration(
             theme: theme,
+            cropMaximumSize: 300,
             guidanceText: guidanceText,
             confirmTitle: confirmTitle,
             animationStyle: .none,

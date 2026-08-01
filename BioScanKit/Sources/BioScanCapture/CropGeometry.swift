@@ -25,6 +25,7 @@ public enum CropGeometry {
         imageSize: CGSize,
         canvasFrame: CGRect,
         cropScale: CGFloat,
+        cropMaximumSize: CGFloat? = nil,
         aspectRatio: CGFloat
     ) -> CropLayout {
         let safeImageWidth = max(imageSize.width, 1)
@@ -34,7 +35,13 @@ public enum CropGeometry {
 
         let maximumWidth = canvasFrame.width * clampedCropScale
         let maximumHeight = canvasFrame.height * clampedCropScale
-        let cropWidth = min(maximumWidth, maximumHeight * safeAspectRatio)
+        let maximumConfiguredWidth = cropMaximumSize.map { max($0, 1) }
+            ?? .greatestFiniteMagnitude
+        let cropWidth = min(
+            maximumWidth,
+            maximumHeight * safeAspectRatio,
+            maximumConfiguredWidth
+        )
         let cropHeight = cropWidth / safeAspectRatio
         let cropRect = CGRect(
             x: canvasFrame.midX - cropWidth / 2,

@@ -43,6 +43,7 @@ public struct ImageCropEditor: View {
                 imageSize: image.size,
                 canvasFrame: canvas,
                 cropScale: configuration.cropScale,
+                cropMaximumSize: configuration.cropMaximumSize,
                 aspectRatio: configuration.aspectRatio
             )
             let resolvedZoom = max(zoom, layout.minimumZoom)
@@ -367,7 +368,7 @@ public struct ImageCropEditor: View {
                     GeometryReader { reader in
                         Color.clear.preference(
                             key: CropConfirmFramePreferenceKey.self,
-                            value: reader.frame(in: .named(CropEditorCoordinateSpace.name))
+                            value: reader.frame(in: .global)
                         )
                     }
                 }
@@ -442,7 +443,7 @@ public struct ImageCropEditor: View {
                 GeometryReader { reader in
                     Color.clear.preference(
                         key: CropConfirmFramePreferenceKey.self,
-                        value: reader.frame(in: .named(CropEditorCoordinateSpace.name))
+                        value: reader.frame(in: .global)
                     )
                 }
             }

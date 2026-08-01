@@ -230,8 +230,8 @@ public struct CameraPage<Preview: View, ExtraOverlay: View>: View {
         .frame(maxWidth: 760)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(.horizontal, 20)
-        .padding(.top, max(proxy.safeAreaInsets.top, 0) + 12)
-        .padding(.bottom, max(proxy.safeAreaInsets.bottom, 18))
+        .padding(.top, 12)
+        .padding(.bottom, 18)
     }
 
     private var instructionPill: some View {
@@ -412,7 +412,7 @@ public struct CameraPage<Preview: View, ExtraOverlay: View>: View {
                 GeometryReader { reader in
                     Color.clear.preference(
                         key: CameraCaptureFramePreferenceKey.self,
-                        value: reader.frame(in: .named(CameraPageCoordinateSpace.name))
+                        value: reader.frame(in: .global)
                     )
                 }
             }
@@ -635,7 +635,7 @@ enum CameraPageLayout {
         )
         let maximumFinderSize = min(
             configuredMaximumFinderSize,
-            max(areaHeight - 34, 96)
+            max(areaHeight, 96)
         )
         return Metrics(
             areaHeight: areaHeight,

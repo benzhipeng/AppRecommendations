@@ -25,7 +25,7 @@ struct INaturePaywallView<Hero: View>: View {
                     configuration: configuration,
                     hero: hero
                 )
-            case .legacyINature:
+            case .legacyINature, .legacyNatureEar:
                 LegacyINaturePaywallView(
                     configuration: configuration,
                     store: store,

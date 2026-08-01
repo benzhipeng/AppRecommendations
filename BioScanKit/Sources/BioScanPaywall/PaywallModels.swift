@@ -135,6 +135,8 @@ public enum INaturePaywallLayoutStyle: Sendable {
     case standard
     /// Pixel-aligned presentation matching the original iNature purchase page.
     case legacyINature
+    /// Presentation matching NatureEar's original warm field-kit purchase page.
+    case legacyNatureEar
 }
 
 public enum PaywallProductKind: Equatable, Sendable {

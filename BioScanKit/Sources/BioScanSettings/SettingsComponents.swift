@@ -67,6 +67,7 @@ public struct SettingsRowView: View {
     private let detail: String?
     private let isExternal: Bool
     private let theme: BioScanTheme
+    private let usesThemeTextColors: Bool
     private let action: () -> Void
 
     public init(
@@ -75,6 +76,7 @@ public struct SettingsRowView: View {
         subtitle: String? = nil,
         detail: String? = nil,
         isExternal: Bool = false,
+        usesThemeTextColors: Bool = false,
         theme: BioScanTheme,
         action: @escaping () -> Void
     ) {
@@ -83,6 +85,7 @@ public struct SettingsRowView: View {
         self.subtitle = subtitle
         self.detail = detail
         self.isExternal = isExternal
+        self.usesThemeTextColors = usesThemeTextColors
         self.theme = theme
         self.action = action
     }
@@ -95,6 +98,7 @@ public struct SettingsRowView: View {
                 subtitle: subtitle,
                 detail: detail,
                 isExternal: isExternal,
+                usesThemeTextColors: usesThemeTextColors,
                 theme: theme
             )
         }
@@ -104,12 +108,15 @@ public struct SettingsRowView: View {
 }
 
 public struct SettingsRowLabelView: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     private let icon: String
     private let title: String
     private let subtitle: String?
     private let detail: String?
     private let isExternal: Bool
     private let theme: BioScanTheme
+    private let usesThemeTextColors: Bool
 
     public init(
         icon: String,
@@ -117,6 +124,7 @@ public struct SettingsRowLabelView: View {
         subtitle: String? = nil,
         detail: String? = nil,
         isExternal: Bool = false,
+        usesThemeTextColors: Bool = false,
         theme: BioScanTheme = .iNature
     ) {
         self.icon = icon
@@ -124,6 +132,7 @@ public struct SettingsRowLabelView: View {
         self.subtitle = subtitle
         self.detail = detail
         self.isExternal = isExternal
+        self.usesThemeTextColors = usesThemeTextColors
         self.theme = theme
     }
 
@@ -142,12 +151,20 @@ public struct SettingsRowLabelView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .font(.system(size: 14, weight: .bold, design: .rounded))
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(
+                        usesThemeTextColors
+                            ? theme.primaryText.resolve(for: colorScheme)
+                            : Color.primary
+                    )
 
                 if let subtitle {
                     Text(subtitle)
                         .font(.system(size: 12, weight: .semibold, design: .rounded))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(
+                            usesThemeTextColors
+                                ? theme.secondaryText.resolve(for: colorScheme)
+                                : Color.secondary
+                        )
                 }
             }
 
@@ -156,12 +173,20 @@ public struct SettingsRowLabelView: View {
             if let detail {
                 Text(detail)
                     .font(.system(size: 12, weight: .semibold, design: .rounded))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(
+                        usesThemeTextColors
+                            ? theme.secondaryText.resolve(for: colorScheme)
+                            : Color.secondary
+                    )
             }
 
             Image(systemName: isExternal ? "arrow.up.right" : "chevron.right")
                 .font(.system(size: 12, weight: .bold))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(
+                    usesThemeTextColors
+                        ? theme.secondaryText.resolve(for: colorScheme)
+                        : Color.secondary
+                )
                 .padding(.top, subtitle == nil ? 2 : 6)
                 .accessibilityHidden(true)
         }

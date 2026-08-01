@@ -1,3 +1,4 @@
+import BioScanDesign
 import SwiftUI
 import UIKit
 
@@ -93,7 +94,6 @@ public struct SettingsPageContainer<Content: View>: View {
 
 public struct SettingsPageView<Content: View>: View {
     @Environment(\.colorScheme) private var colorScheme
-    @Environment(\.dismiss) private var dismiss
 
     private let title: String
     private let versionText: String
@@ -121,32 +121,29 @@ public struct SettingsPageView<Content: View>: View {
             versionTapped: versionTapped,
             content: content
         )
-        .navigationTitle(title)
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true)
+        .bioScanPushNavigation(title: title)
+        .navigationBarBackButtonHidden(backAction != nil)
         .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button {
-                    if let backAction {
+            if let backAction {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
                         backAction()
-                    } else {
-                        dismiss()
+                    } label: {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 16, weight: .bold))
+                            .frame(width: 32, height: 32)
+                            .background {
+                                Circle()
+                                    .fill(
+                                        colorScheme == .dark
+                                            ? Color.white.opacity(0.08)
+                                            : Color.white.opacity(0.88)
+                                    )
+                            }
                     }
-                } label: {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 16, weight: .bold))
-                        .frame(width: 32, height: 32)
-                        .background {
-                            Circle()
-                                .fill(
-                                    colorScheme == .dark
-                                        ? Color.white.opacity(0.08)
-                                        : Color.white.opacity(0.88)
-                                )
-                        }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Back")
                 }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Back")
             }
         }
     }

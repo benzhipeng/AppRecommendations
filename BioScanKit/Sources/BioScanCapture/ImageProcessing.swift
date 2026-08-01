@@ -38,4 +38,26 @@ public enum BioScanImageProcessing {
             orientation: .up
         )
     }
+
+    /// Crops exactly the pixels shown in a `.resizeAspectFill` camera preview.
+    /// Both the preview rect and size must use the preview view's local coordinates.
+    public static func cropAspectFillPreview(
+        _ image: UIImage,
+        previewRect: CGRect,
+        previewSize: CGSize
+    ) -> UIImage? {
+        let normalizedImage = normalized(image)
+        guard let cgImage = normalizedImage.cgImage else { return nil }
+
+        let normalizedRect = CropGeometry.normalizedSourceRectForAspectFill(
+            previewRect: previewRect,
+            previewSize: previewSize,
+            sourceSize: CGSize(
+                width: CGFloat(cgImage.width),
+                height: CGFloat(cgImage.height)
+            )
+        )
+        guard !normalizedRect.isEmpty else { return nil }
+        return crop(normalizedImage, normalizedRect: normalizedRect)
+    }
 }

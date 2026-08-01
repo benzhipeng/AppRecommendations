@@ -48,6 +48,32 @@ final class CropGeometryTests: XCTestCase {
         )
     }
 
+    func testAspectFillPreviewMappingPreservesSquareFinderInPortraitPhoto() {
+        let mapped = CropGeometry.normalizedSourceRectForAspectFill(
+            previewRect: CGRect(x: 46.5, y: 276, width: 300, height: 300),
+            previewSize: CGSize(width: 393, height: 852),
+            sourceSize: CGSize(width: 3024, height: 4032)
+        )
+
+        let mappedPixelWidth = mapped.width * 3024
+        let mappedPixelHeight = mapped.height * 4032
+        XCTAssertEqual(mapped.midX, 0.5, accuracy: 0.001)
+        XCTAssertEqual(mappedPixelWidth, mappedPixelHeight, accuracy: 0.001)
+    }
+
+    func testAspectFillPreviewMappingAccountsForCroppedHorizontalEdges() {
+        let mapped = CropGeometry.normalizedSourceRectForAspectFill(
+            previewRect: CGRect(x: 0, y: 0, width: 393, height: 852),
+            previewSize: CGSize(width: 393, height: 852),
+            sourceSize: CGSize(width: 3024, height: 4032)
+        )
+
+        XCTAssertGreaterThan(mapped.minX, 0)
+        XCTAssertLessThan(mapped.maxX, 1)
+        XCTAssertEqual(mapped.minY, 0, accuracy: 0.001)
+        XCTAssertEqual(mapped.maxY, 1, accuracy: 0.001)
+    }
+
     func testCameraPageLayoutFitsCompactAndRegularHeights() {
         let compact = CameraPageLayout.metrics(
             availableHeight: 390,

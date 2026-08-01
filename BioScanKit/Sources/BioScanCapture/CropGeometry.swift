@@ -21,6 +21,50 @@ public struct CropLayout: Equatable, Sendable {
 }
 
 public enum CropGeometry {
+    /// Maps a rect from an aspect-fill preview into the normalized coordinate
+    /// space of the upright source image.
+    public static func normalizedSourceRectForAspectFill(
+        previewRect: CGRect,
+        previewSize: CGSize,
+        sourceSize: CGSize
+    ) -> CGRect {
+        guard previewSize.width > 0,
+              previewSize.height > 0,
+              sourceSize.width > 0,
+              sourceSize.height > 0 else { return .zero }
+
+        let previewBounds = CGRect(origin: .zero, size: previewSize)
+        let visiblePreviewRect = previewRect.intersection(previewBounds)
+        guard !visiblePreviewRect.isNull, !visiblePreviewRect.isEmpty else { return .zero }
+
+        let scale = max(
+            previewSize.width / sourceSize.width,
+            previewSize.height / sourceSize.height
+        )
+        let displayedSize = CGSize(
+            width: sourceSize.width * scale,
+            height: sourceSize.height * scale
+        )
+        let overflow = CGSize(
+            width: (displayedSize.width - previewSize.width) / 2,
+            height: (displayedSize.height - previewSize.height) / 2
+        )
+        let sourceRect = CGRect(
+            x: (visiblePreviewRect.minX + overflow.width) / scale,
+            y: (visiblePreviewRect.minY + overflow.height) / scale,
+            width: visiblePreviewRect.width / scale,
+            height: visiblePreviewRect.height / scale
+        ).intersection(CGRect(origin: .zero, size: sourceSize))
+
+        guard !sourceRect.isNull, !sourceRect.isEmpty else { return .zero }
+        return CGRect(
+            x: sourceRect.minX / sourceSize.width,
+            y: sourceRect.minY / sourceSize.height,
+            width: sourceRect.width / sourceSize.width,
+            height: sourceRect.height / sourceSize.height
+        )
+    }
+
     public static func layout(
         imageSize: CGSize,
         canvasFrame: CGRect,

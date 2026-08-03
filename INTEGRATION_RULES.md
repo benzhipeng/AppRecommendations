@@ -34,6 +34,8 @@
 
 ## 3. 模块选择
 
+### 3.1 iOS
+
 按实际能力选择最小依赖，不要为了方便默认链接所有模块。
 
 | 模块 | 使用场景 | App 仍需提供 |
@@ -45,6 +47,32 @@
 | `BioScanKit` | 确实同时需要全部模块的 App | 上述全部 App 侧能力 |
 
 NatureEar 没有拍照识别业务，因此只接入 Design、Settings 和 Paywall，禁止为保持形式一致而引入 Capture。
+
+### 3.2 Android
+
+Android 原生 Compose 实现在 `BioScanKit/Android`，包名按能力分为：
+
+- `com.bioscankit.android.design`
+- `com.bioscankit.android.settings`
+- `com.bioscankit.android.capture`
+- `com.bioscankit.android.paywall`
+
+Android 与 iOS 使用相同的功能边界和 iNature 默认配置，但不共享 UI 源码。CameraX 会话、Activity、Navigation、RevenueCat/Google Billing Adapter、产品 ID、识别模型、历史仓库和埋点继续留在宿主 App。
+
+兄弟仓库接入示例：
+
+```kotlin
+// settings.gradle.kts
+include(":bioscankit")
+project(":bioscankit").projectDir = file("../../AppRecommendations/BioScanKit/Android")
+
+// app/build.gradle.kts
+dependencies {
+    implementation(project(":bioscankit"))
+}
+```
+
+Android 推荐 App 必须使用明确的 Google Play URL 字段；不得把 `appStoreURL` 当作 Android 跳转地址。没有对应平台 URL 的条目安全过滤为空。
 
 ## 4. 仓库与工程接入
 

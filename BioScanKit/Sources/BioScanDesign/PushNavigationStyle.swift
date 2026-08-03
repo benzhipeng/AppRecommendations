@@ -37,6 +37,9 @@ private struct MinimalBackButtonConfigurator: UIViewControllerRepresentable {
     }
 
     final class Controller: UIViewController {
+        private weak var configuredNavigationBar: UINavigationBar?
+        private var tintObservation: NSKeyValueObservation?
+
         override func didMove(toParent parent: UIViewController?) {
             super.didMove(toParent: parent)
             applyBackButtonStyle()
@@ -56,8 +59,27 @@ private struct MinimalBackButtonConfigurator: UIViewControllerRepresentable {
 
         private func configureNavigationItems() {
             guard let navigationBar = navigationController?.navigationBar else { return }
+            observeTintChanges(on: navigationBar)
+            applyNavigationTint(to: navigationBar)
             navigationBar.topItem?.backButtonDisplayMode = .minimal
             navigationBar.backItem?.backButtonDisplayMode = .minimal
+        }
+
+        private func observeTintChanges(on navigationBar: UINavigationBar) {
+            guard configuredNavigationBar !== navigationBar else { return }
+
+            tintObservation = nil
+            configuredNavigationBar = navigationBar
+            tintObservation = navigationBar.observe(\.tintColor, options: [.new]) { [weak self] navigationBar, _ in
+                self?.applyNavigationTint(to: navigationBar)
+            }
+        }
+
+        private func applyNavigationTint(to navigationBar: UINavigationBar) {
+            let expectedColor = UIColor.label.resolvedColor(with: navigationBar.traitCollection)
+            let currentColor = navigationBar.tintColor.resolvedColor(with: navigationBar.traitCollection)
+            guard !currentColor.isEqual(expectedColor) else { return }
+            navigationBar.tintColor = .label
         }
     }
 }

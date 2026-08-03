@@ -244,7 +244,18 @@ public struct PaywallCopy: Sendable {
         self.noProductsTitle = noProductsTitle
     }
 
-    public static let iNature = PaywallCopy()
+    public static let iNature = PaywallCopy(
+        title: "Your offline scanner",
+        subtitle: "Perfect for hikes, camping, and travel without signal",
+        assuranceTitle: "All yours — no subscription hassle!",
+        assuranceItems: [
+            "Unlimited toxicity scans",
+            "Instant AI recognition",
+            "Offline database access",
+            "Expert-verified reports",
+            "Continuous optimization"
+        ]
+    )
 }
 
 public struct PaywallFeatures: Sendable {
@@ -293,6 +304,7 @@ public struct PaywallConfiguration: Sendable {
     public let features: PaywallFeatures
     public let creditAccounting: CreditAccounting
     public let iNatureLayoutStyle: INaturePaywallLayoutStyle
+    public let legacyINatureAccent: Color?
     public let cardSelectionAppearance: CardSelectionPaywallAppearance
     public let cardSelectionTheme: CardSelectionPaywallTheme?
 
@@ -304,6 +316,7 @@ public struct PaywallConfiguration: Sendable {
         features: PaywallFeatures = .iNature,
         creditAccounting: CreditAccounting = .ledger,
         iNatureLayoutStyle: INaturePaywallLayoutStyle = .standard,
+        legacyINatureAccent: Color? = nil,
         cardSelectionAppearance: CardSelectionPaywallAppearance = .themed,
         cardSelectionTheme: CardSelectionPaywallTheme? = nil
     ) {
@@ -314,6 +327,7 @@ public struct PaywallConfiguration: Sendable {
         self.features = features
         self.creditAccounting = creditAccounting
         self.iNatureLayoutStyle = iNatureLayoutStyle
+        self.legacyINatureAccent = legacyINatureAccent
         self.cardSelectionAppearance = cardSelectionAppearance
         self.cardSelectionTheme = cardSelectionTheme
     }

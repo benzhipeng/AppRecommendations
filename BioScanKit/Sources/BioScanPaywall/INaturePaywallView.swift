@@ -175,7 +175,7 @@ struct LegacyINaturePaywallView<Hero: View>: View {
 
     private var heroSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(isNatureEar ? "Your nature field kit" : "Your offline scanner")
+            Text(isNatureEar ? "Your nature field kit" : configuration.copy.title)
                 .font(.system(size: 30, weight: .black, design: .rounded))
                 .foregroundStyle(primaryText)
                 .lineLimit(2)
@@ -183,14 +183,18 @@ struct LegacyINaturePaywallView<Hero: View>: View {
             Text(
                 isNatureEar
                     ? "Perfect for dawn walks, forest trails, and quick field checks"
-                    : "Perfect for hikes, camping, and travel without signal"
+                    : configuration.copy.subtitle
             )
                 .font(.system(size: 14, weight: .bold, design: .rounded))
                 .foregroundStyle(brandAccent)
 
-            Text(isNatureEar ? "Pay once, for lifetime" : "All yours — no subscription hassle!")
+            Text(isNatureEar ? "Pay once, for lifetime" : configuration.copy.assuranceTitle)
                 .font(.system(size: 18, weight: .black, design: .rounded))
-                .foregroundStyle(isNatureEar ? purchaseAccent : Color(red: 0.11, green: 0.42, blue: 0.16))
+                .foregroundStyle(
+                    isNatureEar
+                        ? purchaseAccent
+                        : legacyAccent(fallback: Color(red: 0.11, green: 0.42, blue: 0.16))
+                )
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
@@ -230,7 +234,11 @@ struct LegacyINaturePaywallView<Hero: View>: View {
 
                     VStack(spacing: 10) {
                         RoundedRectangle(cornerRadius: 999, style: .continuous)
-                            .fill(isNatureEar ? brandAccent : Color(red: 0.14, green: 0.58, blue: 0.18))
+                            .fill(
+                                isNatureEar
+                                    ? brandAccent
+                                    : legacyAccent(fallback: Color(red: 0.14, green: 0.58, blue: 0.18))
+                            )
                             .frame(height: 10)
 
                         HStack {
@@ -271,7 +279,9 @@ struct LegacyINaturePaywallView<Hero: View>: View {
                         .padding(.horizontal, 14)
                         .padding(.vertical, 6)
                         .background(
-                            isNatureEar ? brandAccent : Color(red: 0.16, green: 0.54, blue: 0.20),
+                            isNatureEar
+                                ? brandAccent
+                                : legacyAccent(fallback: Color(red: 0.16, green: 0.54, blue: 0.20)),
                             in: Capsule()
                         )
                         .offset(x: -10, y: -12)
@@ -324,10 +334,7 @@ struct LegacyINaturePaywallView<Hero: View>: View {
             )
         } else {
             return AnyShapeStyle(LinearGradient(
-                colors: [
-                    Color(red: 0.16, green: 0.54, blue: 0.20),
-                    Color(red: 0.10, green: 0.40, blue: 0.16)
-                ],
+                colors: legacyLifetimePriceColors,
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             ))
@@ -343,12 +350,27 @@ struct LegacyINaturePaywallView<Hero: View>: View {
                 benefitLine(icon: "book.closed.fill", text: "Local species notes and field details")
                 benefitLine(icon: "arrow.triangle.2.circlepath", text: "Future Pro improvements included")
             } else {
-                benefitLine(icon: "infinity", text: "Unlimited toxicity scans")
-                benefitLine(icon: "bolt.fill", text: "Instant AI recognition")
-                benefitLine(icon: "wifi.slash", text: "Offline database access")
-                benefitLine(icon: "checkmark.seal.fill", text: "Expert-verified reports")
-                benefitLine(icon: "arrow.triangle.2.circlepath", text: "Continuous optimization")
+                ForEach(configuredBenefits) { benefit in
+                    benefitLine(icon: benefit.icon, text: benefit.text)
+                }
             }
+        }
+    }
+
+    private var configuredBenefits: [LegacyPaywallBenefit] {
+        let icons = [
+            "infinity",
+            "bolt.fill",
+            "wifi.slash",
+            "checkmark.seal.fill",
+            "arrow.triangle.2.circlepath"
+        ]
+        return configuration.copy.assuranceItems.enumerated().map { index, text in
+            LegacyPaywallBenefit(
+                id: "\(index):\(text)",
+                icon: icons[index % icons.count],
+                text: text
+            )
         }
     }
 
@@ -365,7 +387,11 @@ struct LegacyINaturePaywallView<Hero: View>: View {
                     )
                 Image(systemName: icon)
                     .font(.system(size: 13, weight: .bold))
-                    .foregroundStyle(isNatureEar ? brandAccent : Color(red: 0.08, green: 0.14, blue: 0.26))
+                    .foregroundStyle(
+                        isNatureEar
+                            ? brandAccent
+                            : legacyAccent(fallback: Color(red: 0.08, green: 0.14, blue: 0.26))
+                    )
             }
             .frame(width: 34, height: 34)
 
@@ -419,7 +445,12 @@ struct LegacyINaturePaywallView<Hero: View>: View {
                     .foregroundStyle(.white)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 4)
-                    .background(isNatureEar ? brandAccent : Color(red: 0.08, green: 0.14, blue: 0.26), in: Capsule())
+                    .background(
+                        isNatureEar
+                            ? brandAccent
+                            : legacyAccent(fallback: Color(red: 0.08, green: 0.14, blue: 0.26)),
+                        in: Capsule()
+                    )
                     .offset(y: -6)
                     .padding(.bottom, -8)
             }
@@ -427,7 +458,7 @@ struct LegacyINaturePaywallView<Hero: View>: View {
             Text(isPopular ? "POPULAR" : "STARTER")
                 .font(.system(size: 15, weight: .black, design: .rounded))
                 .foregroundStyle(secondaryText)
-            Text("\(count) \(isNatureEar ? "IDs" : "Scans")")
+            Text("\(count) \(creditUnit(for: product))")
                 .font(.system(size: 20, weight: .black, design: .rounded))
                 .foregroundStyle(primaryText)
             Text(price(for: product, fallback: isPopular ? "$2.99" : "$0.99"))
@@ -515,7 +546,7 @@ struct LegacyINaturePaywallView<Hero: View>: View {
         case .lifetime:
             return isNatureEar ? "Pay once, for lifetime" : "Pay once, enjoy forever"
         case .credits(let count):
-            return "Buy \(count) \(isNatureEar ? "IDs" : "Scans") for \(price(for: product, fallback: count == 20 ? "$2.99" : "$0.99"))"
+            return "Buy \(count) \(creditUnit(for: product)) for \(price(for: product, fallback: count == 20 ? "$2.99" : "$0.99"))"
         }
     }
 
@@ -589,14 +620,17 @@ struct LegacyINaturePaywallView<Hero: View>: View {
     }
 
     private func unitPrice(for product: PaywallProduct, count: Int) -> String {
+        let unitFooter = product.footerText
+            ?? (isNatureEar ? "per ID" : "per scan")
         if let localized = store.productDetails(for: product.id)?
             .localizedUnitPrice(dividingBy: count) {
-            return "\(localized) per \(isNatureEar ? "ID" : "scan")"
+            return "\(localized) \(unitFooter)"
         }
-        if isNatureEar {
-            return count == 20 ? "$0.15 per ID" : "$0.20 per ID"
-        }
-        return count == 20 ? "$0.15 per scan" : "$0.20 per scan"
+        return "\(count == 20 ? "$0.15" : "$0.20") \(unitFooter)"
+    }
+
+    private func creditUnit(for product: PaywallProduct) -> String {
+        product.unitSuffix ?? (isNatureEar ? "IDs" : "Scans")
     }
 
     private var isDark: Bool {
@@ -604,7 +638,23 @@ struct LegacyINaturePaywallView<Hero: View>: View {
     }
 
     private var accent: Color {
-        isNatureEar ? configuration.theme.accent : Color(red: 0.12, green: 0.52, blue: 0.18)
+        isNatureEar
+            ? configuration.theme.accent
+            : legacyAccent(fallback: Color(red: 0.12, green: 0.52, blue: 0.18))
+    }
+
+    private func legacyAccent(fallback: Color) -> Color {
+        configuration.legacyINatureAccent ?? fallback
+    }
+
+    private var legacyLifetimePriceColors: [Color] {
+        guard let accent = configuration.legacyINatureAccent else {
+            return [
+                Color(red: 0.16, green: 0.54, blue: 0.20),
+                Color(red: 0.10, green: 0.40, blue: 0.16)
+            ]
+        }
+        return [accent, accent.opacity(0.76)]
     }
 
     private var purchaseAccent: Color {
@@ -673,6 +723,9 @@ struct LegacyINaturePaywallView<Hero: View>: View {
         if isNatureEar {
             return configuration.theme.border.resolve(for: colorScheme)
         }
+        if let accent = configuration.legacyINatureAccent {
+            return accent.opacity(isDark ? 0.62 : 0.42)
+        }
         return isDark
             ? Color(red: 0.31, green: 0.48, blue: 0.33)
             : Color(red: 0.67, green: 0.82, blue: 0.67)
@@ -739,4 +792,10 @@ private struct PaywallShimmerOverlay: View {
             phase = 1.4
         }
     }
+}
+
+private struct LegacyPaywallBenefit: Identifiable {
+    let id: String
+    let icon: String
+    let text: String
 }

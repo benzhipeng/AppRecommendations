@@ -32,9 +32,8 @@
       "title": "Mr.Mushroom",
       "description": "Mushroom recognition with local details and safety notes",
       "imageName": "MushroomShareAppLogo",
-      "isVisible": false,
       "backgroundColors": ["#F15A24", "#FFB347", "#5FA846"],
-      "appStoreURL": "https://apps.apple.com/search?term=Mr.Mushroom",
+      "appStoreURL": "https://apps.apple.com/app/id6791078589",
       "fallbackMessage": "Please search Mr.Mushroom in the App Store."
     }
   ]

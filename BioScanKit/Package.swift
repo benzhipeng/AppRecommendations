@@ -5,10 +5,11 @@ import PackageDescription
 let package = Package(
     name: "BioScanKit",
     platforms: [
-        .iOS(.v16)
+        .iOS(.v17)
     ],
     products: [
         .library(name: "BioScanDesign", targets: ["BioScanDesign"]),
+        .library(name: "BioScanCloudSync", targets: ["BioScanCloudSync"]),
         .library(name: "BioScanSettings", targets: ["BioScanSettings"]),
         .library(name: "BioScanCapture", targets: ["BioScanCapture"]),
         .library(name: "BioScanPaywall", targets: ["BioScanPaywall"]),
@@ -16,6 +17,7 @@ let package = Package(
             name: "BioScanKit",
             targets: [
                 "BioScanDesign",
+                "BioScanCloudSync",
                 "BioScanSettings",
                 "BioScanCapture",
                 "BioScanPaywall"
@@ -24,9 +26,10 @@ let package = Package(
     ],
     targets: [
         .target(name: "BioScanDesign"),
+        .target(name: "BioScanCloudSync"),
         .target(
             name: "BioScanSettings",
-            dependencies: ["BioScanDesign"]
+            dependencies: ["BioScanDesign", "BioScanCloudSync"]
         ),
         .target(
             name: "BioScanCapture",
@@ -47,6 +50,10 @@ let package = Package(
         .testTarget(
             name: "BioScanSettingsTests",
             dependencies: ["BioScanSettings"]
+        ),
+        .testTarget(
+            name: "BioScanCloudSyncTests",
+            dependencies: ["BioScanCloudSync"]
         )
     ]
 )

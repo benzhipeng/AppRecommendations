@@ -519,8 +519,12 @@ struct LegacyINaturePaywallView<Hero: View>: View {
                 in: .rect(cornerRadius: 16)
             )
             .overlay {
-                PaywallShimmerOverlay(
-                    active: !isLifetimeMember && !store.isBusy
+                PaywallCTAShimmerOverlay(
+                    active: isLifetimeSelected && !isPrimaryButtonDisabled,
+                    duration: 1.35,
+                    bounce: false,
+                    highlightOpacity: 0.28,
+                    cornerRadius: 16
                 )
             }
             .shadow(
@@ -558,6 +562,10 @@ struct LegacyINaturePaywallView<Hero: View>: View {
             return true
         }
         return store.productDetails(for: selectedID) == nil
+    }
+
+    private var isLifetimeSelected: Bool {
+        store.selectedProduct?.kind == .lifetime
     }
 
     private var lifetimeProduct: PaywallProduct? {
@@ -604,19 +612,7 @@ struct LegacyINaturePaywallView<Hero: View>: View {
     }
 
     private func referencePrice(for product: PaywallProduct) -> String? {
-        if let price = store.productDetails(for: product.id)?.price {
-            let doubledPrice = price * 2
-            let formatter = NumberFormatter()
-            formatter.numberStyle = .currency
-            formatter.currencyCode = store.productDetails(for: product.id)?.currencyCode
-            if let formatted = formatter.string(from: NSDecimalNumber(decimal: doubledPrice)) {
-                return formatted
-            }
-        }
-        if isNatureEar {
-            return nil
-        }
-        return product.originalPriceText ?? "$55.98"
+        store.localizedOriginalPrice(for: product.id)
     }
 
     private func unitPrice(for product: PaywallProduct, count: Int) -> String {
@@ -750,47 +746,54 @@ private struct LayoutMetrics {
     let sectionSpacing: CGFloat = 20
 }
 
-private struct PaywallShimmerOverlay: View {
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var phase: CGFloat = -1.2
-
+private struct PaywallCTAShimmerOverlay: View {
     let active: Bool
+    let duration: Double
+    let bounce: Bool
+    let highlightOpacity: Double
+    let cornerRadius: CGFloat
+
+    @State private var phase: CGFloat = 0
 
     var body: some View {
         GeometryReader { proxy in
-            LinearGradient(
-                colors: [
-                    .clear,
-                    .white.opacity(0.28),
-                    .clear
-                ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .frame(width: max(proxy.size.width * 0.28, 48))
-            .rotationEffect(.degrees(18))
-            .offset(x: phase * proxy.size.width)
-        }
-        .clipShape(.rect(cornerRadius: 16))
-        .allowsHitTesting(false)
-        .opacity(active && !reduceMotion ? 1 : 0)
-        .onAppear {
-            startAnimationIfNeeded()
-        }
-        .onChange(of: active) { _ in
-            startAnimationIfNeeded()
-        }
-    }
+            if active {
+                let highlightWidth = min(max(proxy.size.width * 0.55, 180), 420)
+                let startX = -highlightWidth / 2
+                let travelDistance = proxy.size.width + highlightWidth
 
-    private func startAnimationIfNeeded() {
-        guard active, !reduceMotion else {
-            phase = -1.2
-            return
+                LinearGradient(
+                    stops: [
+                        .init(color: .white.opacity(0.0), location: 0.0),
+                        .init(color: .white.opacity(0.06), location: 0.35),
+                        .init(color: .white.opacity(highlightOpacity), location: 0.50),
+                        .init(color: .white.opacity(0.06), location: 0.65),
+                        .init(color: .white.opacity(0.0), location: 1.0)
+                    ],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+                .frame(width: highlightWidth, height: proxy.size.height * 1.8)
+                .rotationEffect(.degrees(12))
+                .position(
+                    x: startX + phase * travelDistance,
+                    y: proxy.size.height / 2
+                )
+                .allowsHitTesting(false)
+                .onAppear {
+                    phase = 0
+                    withAnimation(.linear(duration: duration).repeatForever(autoreverses: bounce)) {
+                        phase = 1
+                    }
+                }
+                .onDisappear {
+                    phase = 0
+                }
+            }
         }
-        phase = -1.2
-        withAnimation(.linear(duration: 1.35).repeatForever(autoreverses: false)) {
-            phase = 1.4
-        }
+        .compositingGroup()
+        .clipShape(.rect(cornerRadius: cornerRadius))
+        .allowsHitTesting(false)
     }
 }
 

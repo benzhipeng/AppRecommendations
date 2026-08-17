@@ -225,7 +225,8 @@ struct CardSelectionPaywallView<Hero: View>: View {
 
                 VStack(alignment: .trailing, spacing: 6) {
                     if configuration.features.showsOriginalPrice,
-                       let originalPriceText = product.originalPriceText {
+                       case .lifetime = product.kind,
+                       let originalPriceText = store.localizedOriginalPrice(for: product.id) {
                         Text(originalPriceText)
                             .font(
                                 .system(

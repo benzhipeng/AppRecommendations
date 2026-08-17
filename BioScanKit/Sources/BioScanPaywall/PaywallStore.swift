@@ -49,6 +49,10 @@ public final class PaywallStore: ObservableObject {
         products[id]
     }
 
+    public func localizedOriginalPrice(for id: String) -> String? {
+        products[id]?.localizedPrice(multipliedBy: 2)
+    }
+
     public func appeared() {
         actions.track(.shown(configuration.style))
     }

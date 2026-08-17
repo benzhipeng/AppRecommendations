@@ -150,7 +150,6 @@ public struct PaywallProduct: Identifiable, Equatable, Sendable {
     public let title: String
     public let subtitle: String
     public let badge: String?
-    public let originalPriceText: String?
     public let actionTitle: String?
     public let unitSuffix: String?
     public let footerText: String?
@@ -161,7 +160,6 @@ public struct PaywallProduct: Identifiable, Equatable, Sendable {
         title: String,
         subtitle: String,
         badge: String? = nil,
-        originalPriceText: String? = nil,
         actionTitle: String? = nil,
         unitSuffix: String? = nil,
         footerText: String? = nil
@@ -171,7 +169,6 @@ public struct PaywallProduct: Identifiable, Equatable, Sendable {
         self.title = title
         self.subtitle = subtitle
         self.badge = badge
-        self.originalPriceText = originalPriceText
         self.actionTitle = actionTitle
         self.unitSuffix = unitSuffix
         self.footerText = footerText
@@ -356,14 +353,18 @@ public struct BillingProduct: Identifiable, Equatable, Sendable {
 
     public func localizedUnitPrice(dividingBy divisor: Int) -> String? {
         guard divisor > 0 else { return nil }
-        let unitPrice = price / Decimal(divisor)
+        return localizedPrice(multipliedBy: 1 / Decimal(divisor))
+    }
+
+    public func localizedPrice(multipliedBy multiplier: Decimal) -> String? {
+        guard multiplier > 0 else { return nil }
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
-        formatter.currencyCode = currencyCode
         if let localeIdentifier {
             formatter.locale = Locale(identifier: localeIdentifier)
         }
-        return formatter.string(from: NSDecimalNumber(decimal: unitPrice))
+        formatter.currencyCode = currencyCode
+        return formatter.string(from: NSDecimalNumber(decimal: price * multiplier))
     }
 }
 

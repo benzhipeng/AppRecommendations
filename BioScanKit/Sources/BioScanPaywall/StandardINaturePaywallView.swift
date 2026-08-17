@@ -284,7 +284,8 @@ private struct StandardINaturePaywallView<Hero: View>: View {
                 .foregroundStyle(configuration.theme.primaryText.resolve(for: colorScheme))
 
             if configuration.features.showsOriginalPrice,
-               let original = product.originalPriceText {
+               case .lifetime = product.kind,
+               let original = store.localizedOriginalPrice(for: product.id) {
                 Text(original)
                     .font(.caption)
                     .strikethrough()

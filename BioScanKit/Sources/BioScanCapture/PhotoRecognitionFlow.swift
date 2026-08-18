@@ -42,7 +42,7 @@ public final class PhotoRecognitionStore<
     private let onRequiresPaywall: @MainActor () -> Void
     private let onResult: @MainActor (Client.Result) -> Void
     private var recognitionTask: Task<Void, Never>?
-    private var queuedPhoto: CapturedPhoto?
+    private let recognitionContinuation = RecognitionContinuation<CapturedPhoto>()
 
     public init(
         client: Client,
@@ -82,15 +82,16 @@ public final class PhotoRecognitionStore<
     }
 
     public func resumeAfterPurchase() {
-        guard let photo = queuedPhoto else { return }
-        queuedPhoto = nil
+        guard case .resume(let photo) = recognitionContinuation.resolveAfterPaywall(
+            hasRecognitionAccess: true
+        ) else { return }
         startRecognitionIfAllowed(photo)
     }
 
     public func reset() {
         recognitionTask?.cancel()
         recognitionTask = nil
-        queuedPhoto = nil
+        recognitionContinuation.clear()
         phase = .camera
     }
 
@@ -102,7 +103,7 @@ public final class PhotoRecognitionStore<
             guard !Task.isCancelled else { return }
 
             if access == .unavailable {
-                queuedPhoto = photo
+                recognitionContinuation.enqueue(photo)
                 phase = .cropping(photo)
                 onRequiresPaywall()
                 return

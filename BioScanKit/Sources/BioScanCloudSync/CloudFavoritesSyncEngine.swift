@@ -1,8 +1,10 @@
 import CloudKit
 import Foundation
+import os
 
 @available(iOS 17.0, *)
 public actor CloudFavoritesSyncEngine: CKSyncEngineDelegate {
+    private static let logger = Logger(subsystem: "BioScanCloudSync", category: "Favorites")
     private enum RecordType {
         static let favorite = "Favorite"
         static let state = "FavoritesState"
@@ -54,9 +56,13 @@ public actor CloudFavoritesSyncEngine: CKSyncEngineDelegate {
     }
 
     public func start() async {
+        let containerName = self.container.containerIdentifier ?? "unknown"
+        Self.logger.info("Starting iCloud favorites sync for container \(containerName, privacy: .public), zone \(Self.zoneName, privacy: .public)")
         await statusHandler(.checkingAccount)
         do {
-            guard try await container.accountStatus() == .available else {
+            let accountStatus = try await container.accountStatus()
+            Self.logger.info("iCloud account status: \(String(describing: accountStatus), privacy: .public)")
+            guard accountStatus == .available else {
                 await statusHandler(.unavailable)
                 return
             }
@@ -70,6 +76,11 @@ public actor CloudFavoritesSyncEngine: CKSyncEngineDelegate {
             try await engine.sendChanges()
             await statusHandler(.synced(.now))
         } catch {
+            if let cloudError = error as? CKError {
+                Self.logger.error("CloudKit sync failed: code=\(cloudError.code.rawValue, privacy: .public), description=\(cloudError.localizedDescription, privacy: .public)")
+            } else {
+                Self.logger.error("iCloud sync failed: \(error.localizedDescription, privacy: .public)")
+            }
             await statusHandler(.failed(Self.message(for: error)))
         }
     }

@@ -412,7 +412,7 @@ public struct CameraPage<Preview: View, ExtraOverlay: View>: View {
                 GeometryReader { reader in
                     Color.clear.preference(
                         key: CameraCaptureFramePreferenceKey.self,
-                        value: reader.frame(in: .global)
+                        value: reader.frame(in: .named(CameraPageCoordinateSpace.name))
                     )
                 }
             }

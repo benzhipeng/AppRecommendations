@@ -5,7 +5,7 @@ import PackageDescription
 let package = Package(
     name: "BioScanKit",
     platforms: [
-        .iOS(.v17)
+        .iOS("18.0")
     ],
     products: [
         .library(name: "BioScanDesign", targets: ["BioScanDesign"]),

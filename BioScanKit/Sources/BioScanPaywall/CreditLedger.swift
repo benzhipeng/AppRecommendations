@@ -79,6 +79,17 @@ public final class CreditLedger {
         return true
     }
 
+    @discardableResult
+    public func grantRecoveryCredits(
+        _ amount: Int,
+        campaignID: String
+    ) -> Bool {
+        addPurchasedCredits(
+            amount,
+            transactionID: "recovery:\(campaignID)"
+        )
+    }
+
     public func consumeOneCredit() -> Bool {
         guard !cachedLifetime else { return true }
 

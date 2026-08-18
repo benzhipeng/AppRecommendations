@@ -304,6 +304,7 @@ public struct PaywallConfiguration: Sendable {
     public let legacyINatureAccent: Color?
     public let cardSelectionAppearance: CardSelectionPaywallAppearance
     public let cardSelectionTheme: CardSelectionPaywallTheme?
+    public let purchaseRecovery: PurchaseRecoveryConfiguration?
 
     public init(
         style: PaywallStyle,
@@ -315,7 +316,8 @@ public struct PaywallConfiguration: Sendable {
         iNatureLayoutStyle: INaturePaywallLayoutStyle = .standard,
         legacyINatureAccent: Color? = nil,
         cardSelectionAppearance: CardSelectionPaywallAppearance = .themed,
-        cardSelectionTheme: CardSelectionPaywallTheme? = nil
+        cardSelectionTheme: CardSelectionPaywallTheme? = nil,
+        purchaseRecovery: PurchaseRecoveryConfiguration? = .init()
     ) {
         self.style = style
         self.theme = theme
@@ -327,6 +329,7 @@ public struct PaywallConfiguration: Sendable {
         self.legacyINatureAccent = legacyINatureAccent
         self.cardSelectionAppearance = cardSelectionAppearance
         self.cardSelectionTheme = cardSelectionTheme
+        self.purchaseRecovery = purchaseRecovery
     }
 }
 
@@ -448,12 +451,15 @@ public enum PaywallEvent: Equatable, Sendable {
 public struct PaywallActions {
     public let dismiss: @MainActor () -> Void
     public let track: @MainActor (PaywallEvent) -> Void
+    public let syncCreditBalance: @MainActor () -> Void
 
     public init(
         dismiss: @escaping @MainActor () -> Void,
-        track: @escaping @MainActor (PaywallEvent) -> Void = { _ in }
+        track: @escaping @MainActor (PaywallEvent) -> Void = { _ in },
+        syncCreditBalance: @escaping @MainActor () -> Void = {}
     ) {
         self.dismiss = dismiss
         self.track = track
+        self.syncCreditBalance = syncCreditBalance
     }
 }

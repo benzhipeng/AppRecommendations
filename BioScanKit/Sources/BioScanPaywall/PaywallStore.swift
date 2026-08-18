@@ -11,6 +11,7 @@ public final class PaywallStore: ObservableObject {
     @Published public var selectedProductID: String?
 
     public let configuration: PaywallConfiguration
+    public let recoveryCoordinator: PurchaseRecoveryCoordinator?
 
     private let billingClient: any BillingClient
     private let creditLedger: CreditLedger
@@ -26,6 +27,17 @@ public final class PaywallStore: ObservableObject {
         self.billingClient = billingClient
         self.creditLedger = creditLedger
         self.actions = actions
+        if let recoveryConfiguration = configuration.purchaseRecovery {
+            recoveryCoordinator = PurchaseRecoveryCoordinator(
+                appIdentifier: Bundle.main.bundleIdentifier ?? "bioscan-app",
+                configuration: recoveryConfiguration
+            ) { amount, campaignID in
+                _ = creditLedger.grantRecoveryCredits(amount, campaignID: campaignID)
+                actions.syncCreditBalance()
+            }
+        } else {
+            recoveryCoordinator = nil
+        }
         creditBalance = creditLedger.balance
         entitlement = creditLedger.balance.hasUnlimitedAccess ? .lifetime : .unknown
         selectedProductID = configuration.catalog.defaultProductID
@@ -107,6 +119,9 @@ public final class PaywallStore: ObservableObject {
             if result.wasCancelled {
                 operation = .cancelled
                 actions.track(.purchaseCancelled(product.id))
+                recoveryCoordinator?.handlePurchaseCancellation(
+                    hasUnlimitedAccess: creditLedger.balance.hasUnlimitedAccess
+                )
                 return
             }
 
@@ -170,6 +185,10 @@ public final class PaywallStore: ObservableObject {
 
     public func dismiss() {
         actions.dismiss()
+    }
+
+    public func refreshCreditBalance() {
+        creditBalance = creditLedger.balance
     }
 
     public func clearTransientOperation() {

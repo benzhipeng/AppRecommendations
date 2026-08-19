@@ -58,16 +58,12 @@ public struct PaywallScreen<Hero: View>: View {
             if let coordinator = store.recoveryCoordinator {
                 PurchaseRecoveryOverlay(
                     coordinator: coordinator,
-                    theme: configuration.theme
+                    theme: configuration.theme,
+                    onClaimed: {
+                        store.refreshCreditBalance()
+                        store.dismiss()
+                    }
                 )
-            }
-        }
-        .onChange(of: store.recoveryCoordinator?.isOfferPresented) { oldValue, newValue in
-            guard oldValue == true, newValue == false,
-                  let coordinator = store.recoveryCoordinator else { return }
-            store.refreshCreditBalance()
-            if coordinator.currentRecord.state == .claimed {
-                store.dismiss()
             }
         }
     }
@@ -76,10 +72,11 @@ public struct PaywallScreen<Hero: View>: View {
 private struct PurchaseRecoveryOverlay: View {
     @ObservedObject var coordinator: PurchaseRecoveryCoordinator
     let theme: BioScanTheme
+    let onClaimed: @MainActor () -> Void
 
     var body: some View {
-        if coordinator.isOfferPresented {
-            ZStack {
+        ZStack {
+            if coordinator.isOfferPresented {
                 Color.black.opacity(0.42)
                     .ignoresSafeArea()
 
@@ -89,7 +86,12 @@ private struct PurchaseRecoveryOverlay: View {
                 )
                 .padding(24)
             }
-            .zIndex(1)
+        }
+        .zIndex(1)
+        .onChange(of: coordinator.isOfferPresented) { oldValue, newValue in
+            guard oldValue, !newValue,
+                  coordinator.currentRecord.state == .claimed else { return }
+            onClaimed()
         }
     }
 }
